@@ -3,8 +3,9 @@ import time
 
 # HOST = input("IP Address: ")
 # PORT = int(input("Host: "))
-HOST = '127.0.0.1'
-PORT = 65432
+HOST = "csa3.bu.edu"
+PORT = 58069  
+
 
 
 def CSP():

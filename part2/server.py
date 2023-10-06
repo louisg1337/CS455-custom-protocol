@@ -1,8 +1,8 @@
 import socket
 import time
 
-HOST = "127.0.0.1"
-PORT = 65432  
+HOST = "csa3.bu.edu"
+PORT = 58069  
 
 def CSP():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
