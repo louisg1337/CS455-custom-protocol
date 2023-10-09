@@ -56,7 +56,7 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
         
         # Wait and listen for the echo response back from the server
         while True:
-            data = s.recv(35000).decode('utf-8')
+            data = s.recv(messageSize + 4).decode('utf-8')
             
             # Error handling
             if data == "404 ERROR: Invalid Measurement Message":

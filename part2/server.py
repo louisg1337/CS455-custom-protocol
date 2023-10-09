@@ -19,7 +19,7 @@ def CSP():
     # data that might be sent.
     while True:
         # Receive data and parse it to be used below
-        data = conn.recv(35000)
+        data = conn.recv(1024)
         decodedData = data.decode('utf-8')
         parsedData = decodedData.split()
         
@@ -62,28 +62,39 @@ def CSP():
 def MP(conn, numProbes, serverDelay, messageSize):
     # Last package read, use this to make sure packages sent in right order
     last = 0
-    messageSize = int(messageSize) + 4
+    messageSize = int(messageSize)
     
     # Listen for data until number of probes is matched
     while last < int(numProbes) - 1:
-        # If received some data, then start the logic 
-        data = conn.recv(messageSize)
-        if len(data) > 0:         
-            # Server delay if needed
-            time.sleep(int(serverDelay) / 1000)
-            
-            # Decode and parse data to extract the sequence number
-            parsedData = data.decode('utf-8').split()
-            seqNum = int(parsedData[1])
-            print("Sequence Number: " + str(seqNum))
+        print("-----------------------")
+        currentDataSize = 0
         
-            # Handle if packets are out of order
-            if seqNum < last:
-                conn.sendall("404 ERROR: Invalid Measurement Message".encode('utf-8'))
-            last = seqNum
+        while currentDataSize != messageSize:
+            data = conn.recv(messageSize + 4)
+            parsedData = data.decode('utf-8').split()
+            print(len(data))
             
-            # Echo message back to client
-            conn.sendall(data)
+            # If received packet with header info
+            if len(parsedData) > 1:         
+                # Parse data to extract the sequence number
+                seqNum = int(parsedData[1])
+                print("Sequence Number: " + str(seqNum))
+            
+                # Handle if packets are out of order
+                if seqNum < last:
+                    conn.sendall("404 ERROR: Invalid Measurement Message".encode('utf-8'))
+                last = seqNum
+                
+                currentDataSize += len(data - 4)
+            else:
+                currentDataSize += len(data)
+                
+        # Server delay if needed
+        time.sleep(int(serverDelay) / 1000)
+        # Echo message back to client
+        conn.sendall(data)    
+        
+        
 
 # Calls connection phase to start up server
 CSP()
