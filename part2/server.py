@@ -86,7 +86,7 @@ def MP(conn, numProbes, serverDelay, messageSize):
                         conn.sendall("404 ERROR: Invalid Measurement Message".encode('utf-8'))
                     last = seqNum
                     
-                    currentDataSize += len(data) - 4
+                    currentDataSize = len(data) - 4
                 else:
                     currentDataSize += len(data)
                 

@@ -47,31 +47,40 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
     payload = 'b' * messageSize
     responses = []
     
+    # Set a timeout for the recv operation (1 second in this case)
+    s.settimeout(1.0)
+    
     # Send numProbes amount of messages to the server
     for i in range(numProbes):
-        # Start the timer and send message 
-        timeStart = time.time()
-        message = "m " + str(i) + " " + payload
-        s.sendall(message.encode('utf-8'))
+        try:
+            # Start the timer and send message 
+            timeStart = time.time()
+            message = "m " + str(i) + " " + payload
+            s.sendall(message.encode('utf-8'))
         
-        # Wait and listen for the echo response back from the server
-        while True:
-            data = s.recv(messageSize + 4).decode('utf-8')
             
-            # Error handling
-            if data == "404 ERROR: Invalid Measurement Message":
-                print("404 ERROR: Invalid Measurement Message")
-                s.close()
-            
-            # If we get back valid data, echo the message to the client
-            # and display the time it took to get to back to them
-            if len(data) > 0: 
-                timeEnd = time.time()
-                timeDiff = (timeEnd - timeStart) * 1000
-                print("Time (ms): " + str(timeDiff))
-                print(data + "\n")
-                responses.append(timeDiff)
-                break
+            # Wait and listen for the echo response back from the server
+            while True:
+                data = s.recv(messageSize + 4).decode('utf-8')
+
+                # Error handling
+                if data == "404 ERROR: Invalid Measurement Message":
+                    print("404 ERROR: Invalid Measurement Message")
+                    s.close()
+                    break
+
+                # If we get back valid data, echo the message to the client
+                # and display the time it took to get back to them
+                if len(data) > 0:
+                    timeEnd = time.time()
+                    timeDiff = (timeEnd - timeStart) * 1000
+                    print("Time (ms): " + str(timeDiff))
+                    print(data + "\n")
+                    responses.append(timeDiff)
+                    break
+        except socket.timeout:
+            # Handle the timeout by re-running the loop
+            print("Timeout: No data received within 1 second. Re-running loop.")
     
     # Calculate and display Avg RTT or Avg TPUT
     avgRtt = (sum(responses) / numProbes) - serverDelay
