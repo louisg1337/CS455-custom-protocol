@@ -74,20 +74,21 @@ def MP(conn, numProbes, serverDelay, messageSize):
             parsedData = data.decode('utf-8').split()
             print(len(data))
             
-            # If received packet with header info
-            if len(parsedData) > 1:         
-                # Parse data to extract the sequence number
-                seqNum = int(parsedData[1])
-                print("Sequence Number: " + str(seqNum))
-            
-                # Handle if packets are out of order
-                if seqNum < last:
-                    conn.sendall("404 ERROR: Invalid Measurement Message".encode('utf-8'))
-                last = seqNum
+            if (len(data) > 0):
+                # If received packet with header info
+                if len(parsedData) > 1:         
+                    # Parse data to extract the sequence number
+                    seqNum = int(parsedData[1])
+                    print("Sequence Number: " + str(seqNum))
                 
-                currentDataSize += len(data - 4)
-            else:
-                currentDataSize += len(data)
+                    # Handle if packets are out of order
+                    if seqNum < last:
+                        conn.sendall("404 ERROR: Invalid Measurement Message".encode('utf-8'))
+                    last = seqNum
+                    
+                    currentDataSize += len(data) - 4
+                else:
+                    currentDataSize += len(data)
                 
         # Server delay if needed
         time.sleep(int(serverDelay) / 1000)
