@@ -55,18 +55,19 @@ def CSP():
             break
         else:
             conn.sendall("200 OK: Ready".encode('utf-8'))
-            MP(conn, numProbes, serverDelay)
+            MP(conn, numProbes, serverDelay, messageSize)
 
 # This is the mesaurement phase function for our TCP experiment. User gets sent
 # into here if and only if they passed pre requisite checks for their setup connection.
-def MP(conn, numProbes, serverDelay):
+def MP(conn, numProbes, serverDelay, messageSize):
     # Last package read, use this to make sure packages sent in right order
     last = 0
+    messageSize = int(messageSize) + 4
     
     # Listen for data until number of probes is matched
     while last < int(numProbes) - 1:
         # If received some data, then start the logic 
-        data = conn.recv(35000)
+        data = conn.recv(messageSize)
         if len(data) > 0:         
             # Server delay if needed
             time.sleep(int(serverDelay) / 1000)
