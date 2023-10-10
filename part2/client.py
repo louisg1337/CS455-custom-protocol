@@ -25,7 +25,7 @@ def CSP():
         message = protocolPhase + " " + measurementType + " " + numProbes + " " + messageSize + " " + serverDelay
         s.sendall(message.encode('utf-8'))
 
-        # Receive response from server
+        # Attempt to get response from server
         response = None
         timeout = time.time() + 2.0
         while (time.time() < timeout):        

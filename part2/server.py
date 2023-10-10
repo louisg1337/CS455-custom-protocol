@@ -49,14 +49,11 @@ def CSP():
             return True
         errors = errorChecking(protocolPhase, measurementType, numProbes, messageSize, serverDelay)
         
-        print("here!")
         # If errors, terminate, else send to Measurement Phase
         if (not errors):
-            print("error")
             conn.sendall("404 ERROR: Invalid Connection Setup Message".encode('utf-8'))
             break
         else:
-            print("we here boy")
             conn.sendall("200 OK: Ready".encode('utf-8'))
             MP(conn, numProbes, serverDelay, messageSize)
 
@@ -74,6 +71,10 @@ def MP(conn, numProbes, serverDelay, messageSize):
         
         timeout = time.time() + 2.0
         while currentDataSize != messageSize:
+            # Server delay if needed
+            time.sleep(int(serverDelay) / 1000)
+            
+            # Receive data
             data = conn.recv(messageSize + 4)
             parsedData = data.decode('utf-8').split()
             print(len(data))
@@ -85,6 +86,7 @@ def MP(conn, numProbes, serverDelay, messageSize):
                 last = int(numProbes)
                 break
             
+            # If we get valid data then
             if (len(data) > 0):
                 # If received packet with header info
                 if len(parsedData) > 1:         
@@ -104,8 +106,6 @@ def MP(conn, numProbes, serverDelay, messageSize):
                 else:
                     currentDataSize += len(data)
                 
-        # Server delay if needed
-        time.sleep(int(serverDelay) / 1000)
         # Echo message back to client
         conn.sendall(data)    
         
