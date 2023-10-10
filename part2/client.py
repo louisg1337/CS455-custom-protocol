@@ -62,37 +62,47 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
         message = "m " + str(i) + " " + payload
         s.sendall(message.encode('utf-8'))
         
+        currentDataSize = 0
+        allData = b""
         # Wait and listen for the echo response back from the server
-        while True:
-            data = s.recv(messageSize + 4).decode('utf-8')
+        while currentDataSize < messageSize:
+            data = s.recv(messageSize + 4)
+            decodedData = data.decode('utf-8')
+            print(decodedData)
+            print("here!")
             
             # Error handling
-            if data == "404 ERROR: Invalid Measurement Message":
+            if decodedData == "404 ERROR: Invalid Measurement Message":
                 print("404 ERROR: Invalid Measurement Message")
                 s.close()
                 abort = True
                 break
             
-            if data == "404 ERROR: Packet lossed, redo experiment":
+            if decodedData == "404 ERROR: Packet lossed, redo experiment":
                 print("Packet was lost during experiment, redo it!")
                 abort = True
                 break
                 
-
-            # If we get back valid data, echo the message to the client
-            # and display the time it took to get back to them
-            if len(data) > 0:
-                timeEnd = time.time()
-                timeDiff = (timeEnd - timeStart) * 1000
-                print("Time (ms): " + str(timeDiff))
-                print(data + "\n")
-                responses.append(timeDiff)
-                break
-        
+            print("2")
+            currentDataSize += len(data)
+            allData += data
+            print(allData)
+            
+        print("now we here")
+        print(len(currentDataSize))
             
         # If packet loss, break out of for loop   
         if (abort): 
             break
+        
+        # Echo message back to user with timer
+        timeEnd = time.time()
+        timeDiff = (timeEnd - timeStart) * 1000
+        print("Time (ms): " + str(timeDiff))
+        print(allData.decode('utf-8') + "\n")
+        responses.append(timeDiff)
+        
+            
     
     # If packet loss, don't display any results from below
     if (abort):

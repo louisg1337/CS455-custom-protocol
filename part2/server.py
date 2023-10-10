@@ -103,11 +103,12 @@ def MP(conn, numProbes, serverDelay, messageSize):
                         break
                     last = seqNum
                     
-                    sendBack += parsedData[2]
                     currentDataSize = len(data) - 4
                 else:
-                    sendBack += data
                     currentDataSize += len(data)
+                    
+                sendBack += data
+                print(sendBack)
                 
         # Echo message back to client
         conn.sendall(sendBack)    
