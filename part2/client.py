@@ -25,9 +25,14 @@ def CSP():
         message = protocolPhase + " " + measurementType + " " + numProbes + " " + messageSize + " " + serverDelay
         s.sendall(message.encode('utf-8'))
 
-        # Response received from server
-        response = s.recv(35000).decode('utf-8')
-        print("\n" + response + "\n")
+        # Receive response from server
+        response = None
+        timeout = time.time() + 2.0
+        while (time.time() < timeout):        
+            response = s.recv(1024).decode('utf-8')
+            if (response != None):
+                print("\n" + response + "\n")
+                break
         
         # If good repsonse, send to measurement phase, if not, terminate
         if response == "200 OK: Ready":
@@ -56,12 +61,11 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
         timeStart = time.time()
         message = "m " + str(i) + " " + payload
         s.sendall(message.encode('utf-8'))
-    
         
         # Wait and listen for the echo response back from the server
         while True:
             data = s.recv(messageSize + 4).decode('utf-8')
-
+            
             # Error handling
             if data == "404 ERROR: Invalid Measurement Message":
                 print("404 ERROR: Invalid Measurement Message")
@@ -81,9 +85,10 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
                 timeEnd = time.time()
                 timeDiff = (timeEnd - timeStart) * 1000
                 print("Time (ms): " + str(timeDiff))
-                # print(data + "\n")
+                print(data + "\n")
                 responses.append(timeDiff)
                 break
+        
             
         # If packet loss, break out of for loop   
         if (abort): 
@@ -98,7 +103,11 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
     if measurementType == "rtt":
         print("Average RTT (ms): " + str(avgRtt) + "\n")
     else:
+        print(avgRtt)
+        print(sum(responses))
+        print(serverDelay)
         throughput = (messageSize * 8) / (avgRtt / 1000)
+        print(throughput)
         print("Average Throughput (bps): " + str(throughput) + "\n")
         
     print("///////////////////////\n")

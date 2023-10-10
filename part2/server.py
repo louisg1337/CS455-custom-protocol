@@ -49,11 +49,14 @@ def CSP():
             return True
         errors = errorChecking(protocolPhase, measurementType, numProbes, messageSize, serverDelay)
         
+        print("here!")
         # If errors, terminate, else send to Measurement Phase
         if (not errors):
+            print("error")
             conn.sendall("404 ERROR: Invalid Connection Setup Message".encode('utf-8'))
             break
         else:
+            print("we here boy")
             conn.sendall("200 OK: Ready".encode('utf-8'))
             MP(conn, numProbes, serverDelay, messageSize)
 
