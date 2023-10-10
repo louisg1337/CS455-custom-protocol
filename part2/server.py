@@ -68,6 +68,7 @@ def MP(conn, numProbes, serverDelay, messageSize):
     while last < int(numProbes) - 1:
         print("-----------------------")
         currentDataSize = 0
+        sendBack = b""
         
         timeout = time.time() + 2.0
         while currentDataSize != messageSize:
@@ -76,7 +77,6 @@ def MP(conn, numProbes, serverDelay, messageSize):
             
             # Receive data
             data = conn.recv(messageSize + 4)
-            sendBack = b""
             parsedData = data.decode('utf-8').split()
             print(len(data))
             
