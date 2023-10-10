@@ -69,10 +69,18 @@ def MP(conn, numProbes, serverDelay, messageSize):
         print("-----------------------")
         currentDataSize = 0
         
+        timeout = time.time() + 2.0
         while currentDataSize != messageSize:
             data = conn.recv(messageSize + 4)
             parsedData = data.decode('utf-8').split()
             print(len(data))
+            
+            # Packet potentially lost, return error to redo experiment
+            if (time.time() >= timeout):
+                # Send error and break out of loops
+                conn.sendall("404 ERROR: Packet lossed, redo experiment".encode('utf-8'))
+                last = int(numProbes)
+                break
             
             if (len(data) > 0):
                 # If received packet with header info
@@ -83,7 +91,10 @@ def MP(conn, numProbes, serverDelay, messageSize):
                 
                     # Handle if packets are out of order
                     if seqNum < last:
+                        # Send error and break out of loop
                         conn.sendall("404 ERROR: Invalid Measurement Message".encode('utf-8'))
+                        last = int(numProbes)
+                        break
                     last = seqNum
                     
                     currentDataSize = len(data) - 4
