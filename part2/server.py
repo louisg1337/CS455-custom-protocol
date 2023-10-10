@@ -76,6 +76,7 @@ def MP(conn, numProbes, serverDelay, messageSize):
             
             # Receive data
             data = conn.recv(messageSize + 4)
+            sendBack = b""
             parsedData = data.decode('utf-8').split()
             print(len(data))
             
@@ -102,12 +103,14 @@ def MP(conn, numProbes, serverDelay, messageSize):
                         break
                     last = seqNum
                     
+                    sendBack += parsedData[2]
                     currentDataSize = len(data) - 4
                 else:
+                    sendBack += data
                     currentDataSize += len(data)
                 
         # Echo message back to client
-        conn.sendall(data)    
+        conn.sendall(sendBack)    
         
         
 
