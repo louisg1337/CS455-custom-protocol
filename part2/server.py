@@ -70,11 +70,11 @@ def MP(conn, numProbes, serverDelay, messageSize):
         currentDataSize = 0
         sendBack = b""
         
+        # Set a timeout in case packet gets lost
         timeout = time.time() + 2.0
+        
+        # Keep on listening for data until the entire message is received
         while currentDataSize != messageSize:
-            # Server delay if needed
-            time.sleep(int(serverDelay) / 1000)
-            
             # Receive data
             data = conn.recv(messageSize + 4)
             parsedData = data.decode('utf-8').split()
@@ -107,9 +107,12 @@ def MP(conn, numProbes, serverDelay, messageSize):
                 else:
                     currentDataSize += len(data)
                     
+                # Combine all data
                 sendBack += data
-                print(sendBack)
-                
+        
+        # Server delay if needed
+        time.sleep(int(serverDelay) / 1000)        
+        
         # Echo message back to client
         conn.sendall(sendBack)    
         
