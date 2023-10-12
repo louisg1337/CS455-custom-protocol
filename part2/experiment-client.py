@@ -58,7 +58,6 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
         # Start the timer and send message 
         timeStart = time.time()
         message = "m " + str(i) + " " + payload
-        print("sending len: " + str(len(message.encode('utf-8'))))
         s.sendall(message.encode('utf-8'))
         
         # Keep track of what bytes have been sent so far
