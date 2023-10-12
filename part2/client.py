@@ -1,10 +1,8 @@
 import socket
 import time
 
-# HOST = input("IP Address: ")
-# PORT = int(input("Host: "))
-HOST = "csa3.bu.edu"
-PORT = 58069  
+HOST = input("IP Address: ")
+PORT = int(input("Port: "))
 
 # Connection set up phase function that handles 
 # getting the connection established and error checking
@@ -60,6 +58,7 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
         # Start the timer and send message 
         timeStart = time.time()
         message = "m " + str(i) + " " + payload
+        print("sending len: " + str(len(message.encode('utf-8'))))
         s.sendall(message.encode('utf-8'))
         
         # Keep track of what bytes have been sent so far
@@ -82,8 +81,16 @@ def MP(s, measurementType, numProbes, messageSize, serverDelay):
                 abort = True
                 break
             
-            # Keep track of how much data was sent, and what data
-            currentDataSize += len(data)
+            parsedData = decodedData.split()
+            
+            # If received packet with header info
+            if len(parsedData) > 1:         
+                # Only add payload to current bit size
+                currentDataSize = len(parsedData[2])
+            else:
+                currentDataSize += len(data)
+                
+            # Add all data
             allData += data
             
             

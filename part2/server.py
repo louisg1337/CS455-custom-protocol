@@ -1,8 +1,8 @@
 import socket
 import time
 
-HOST = "csa3.bu.edu"
-PORT = 58069  
+HOST = input("IP Address: ")
+PORT = int(input("Port: "))
 
 # Connection set up phase function that handles 
 # getting the connection established and error checking
@@ -74,9 +74,9 @@ def MP(conn, numProbes, serverDelay, messageSize):
         timeout = time.time() + 2.0
         
         # Keep on listening for data until the entire message is received
-        while currentDataSize != messageSize:
+        while currentDataSize < messageSize:
             # Receive data
-            data = conn.recv(messageSize + 4)
+            data = conn.recv(35000)
             parsedData = data.decode('utf-8').split()
             print(len(data))
             
@@ -103,8 +103,10 @@ def MP(conn, numProbes, serverDelay, messageSize):
                         break
                     last = seqNum
                     
-                    currentDataSize = len(data) - 4
+                    # Add only payload to currentBitSize
+                    currentDataSize = len(parsedData[2])
                 else:
+                    # Only payload, so just add len(data)
                     currentDataSize += len(data)
                     
                 # Combine all data
