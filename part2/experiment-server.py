@@ -76,7 +76,7 @@ def MP(conn, numProbes, serverDelay, messageSize):
         # Keep on listening for data until the entire message is received
         while currentDataSize < messageSize:
             # Receive data
-            data = conn.recv(35000)
+            data = conn.recv(messageSize)
             parsedData = data.decode('utf-8').split()
             print(len(data))
             
